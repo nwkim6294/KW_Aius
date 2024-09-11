@@ -1,0 +1,229 @@
+[
+    {
+        "id": "745400aebc17700f",
+        "type": "tab",
+        "label": "Sesor_to_MySQL",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "83959652f92597cb",
+        "type": "function",
+        "z": "745400aebc17700f",
+        "name": "Format and Insert",
+        "func": "// MySQL에 삽입할 데이터 준비\nmsg.topic = \"INSERT INTO wise_2410 (TempHumi, Accelerometer, Device, gatewayId, time) VALUES (?, ?, ?, ?, ?)\";\n\nmsg.payload = [\n    msg.payload.TempHumi, \n    msg.payload.Accelerometer, \n    msg.payload.Device, \n    'gateway01', \n    new Date().toISOString()\n];\n\n// 다음 MySQL 노드로 메시지를 전송\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 200,
+        "wires": [
+            [
+                "fd906a31af43cfd8",
+                "7935958483bfe75e"
+            ]
+        ]
+    },
+    {
+        "id": "fd906a31af43cfd8",
+        "type": "mysql",
+        "z": "745400aebc17700f",
+        "mydb": "491e436f74fd9cb2",
+        "name": "",
+        "x": 770,
+        "y": 260,
+        "wires": [
+            [
+                "725e9fbcc2dd0645"
+            ]
+        ]
+    },
+    {
+        "id": "80333f4d1bb04a40",
+        "type": "debug",
+        "z": "745400aebc17700f",
+        "name": "insert eva-2210",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1010,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "ec569aaef8abdd47",
+        "type": "function",
+        "z": "745400aebc17700f",
+        "name": "function 6",
+        "func": "// If program is run in NodeRed. True: run in NodeRed, False: not run in NodeRed\nvar bIsRunNodeRed = true;\n\n// Frame length\nconst MIN_FRAME_LENGTH = 4;\nconst MAX_FRAME_LENGTH = 22;\n\n// fPort\nconst  DATA_REPORT_REPORT_DATA_CMD = 0x06;\nconst  DATA_REPORT_REPORT_CONFIGURATION = 0x07;\nconst  DATA_REPORT_GLOBAL_CALIBRATE_CMD = 0x0E;\n\n// Cmd Id\nconst CMD_ID_CONFIG_REPORT_RSP = {\n    name: \"ConfigReportRsp\",\n    value: 0x81\n};\nconst CMD_ID_READ_CONFIG_REPORT_RSP = {\n    name: \"ReadConfigReportRsp\",\n    value: 0x82\n};\nconst CMD_ID_SET_GLOBAL_CALIBRATE_RSP = {\n    name: \"SetGlobalCalibrateRsp\",\n    value: 0x81\n};\nconst CMD_ID_GET_GLOBAL_CALIBRATE_RSP = {\n    name: \"GetGlobalCalibrateRsp\",\n    value: 0x82\n};\nconst CMD_ID_CLEAR_GLOBAL_CALIBRATE_RSP = {\n    name: \"ClearGlobalCalibrateRsp\",\n    value: 0x83\n};\n\n// Device Type\nconst DEVICE_TYPE_EVA221X = {\n    name: \"EVA-2210\",\n    value: 0x4A\n};\n\n\n// EVA221X Report Type\nconst EVA221X_Report_Type_0 = 0x00;\nconst EVA221X_Report_Type_1 = 0x01;\nconst EVA221X_Report_Type_2 = 0x02;\nconst EVA221X_Report_Type_3 = 0x03;\nconst EVA221X_Multiplier_List = {\n    0: 1,\n    1: 5,\n    2: 10,\n    3: 100\n};\nconst BATTERY_LOW_VOLTAGE = 128;\nconst BATTERY_VALUE = 127;\n\n\nvar SensorTypeList = {\n    \"1\": \"Temperature Sensor\",\n    \"2\": \"Humidity Sensor\"\n}\n\n////////////////////////////////////////////\n// Variables\n////////////////////////////////////////////\n\n//input data is hex string\nvar receivedString = \"014A003C003C0001000000\";\nvar fport = 6;\nvar version, deviceType, reportType, cmdId;\n\n//If program executes in NodeRed, get input data from msg.payload.data\nif(bIsRunNodeRed){\n    receivedString = msg.payload.data;\n    fport = msg.payload.port;\n} else {\n    var msg = {};\n    msg.payload = '';\n}\n\nif(receivedString == undefined){\n    console.log(\"Error: No data is received\");\n    msg.payload = \"Error: No data is received\";\n    return msg;\n}\n\nvar message = {}; //output of this program\n\nvar i, arrLength;\nvar hexArr = []; //translated hex arry from input string\nvar arrayIndex = 0; //index of current processing position in hexArr\n\narrLength = receivedString.length;\n\n////////////////////////////////////////////\n// Functions\n////////////////////////////////////////////\n\nif(!bIsRunNodeRed){\n    var node1 = function(){};\n    node1.warn = function(arg){\n        console.log(arg);\n    };\n    node1.error = function(arg){\n        console.error(arg);\n    }\n}\n\nfunction convertDecToHex(number) {\n    return addZero(number.toString(16).toUpperCase());\n}\n\nfunction addZero(i) {\n    i = i + \"\";\n    if (i.length < 2) {\n        i = \"0\" + i;\n    }\n    return i;\n}\n\nfunction translateInt16(a, b) {\n    return (a << 8) + b;\n}\n\nfunction convertToSignedInt16(number) {\n    if ((number & 0x8000) > 0) {\n        number = number - 0x10000;\n    }\n    return number;\n}\n\nfunction parseVersionPacket(sw, hw, fw1, fw2, fw3, fw4) {\n    var data = {}\n        message.SoftwareVersion = sw / 10;\n        message.HardwareVersion = hw;\n        message.FirmwareVersion = convertDecToHex(fw1) + convertDecToHex(fw2) + convertDecToHex(fw3) + convertDecToHex(fw4);\n}\n\nfunction parseBattery(value) {\n        var low_battery = \"\";\n        if (value & BATTERY_LOW_VOLTAGE) {\n            low_battery = \"(low battery)\";\n    }\n        return ((value & BATTERY_VALUE) / 10) + \"V\" + low_battery;\n}\n\nfunction parseReportDataCmd(index) {\n    switch(deviceType) {\n        case DEVICE_TYPE_EVA221X.value:\n            message.DeviceType = DEVICE_TYPE_EVA221X.name;\n            switch(reportType) {\n                case EVA221X_Report_Type_0:\n                    parseVersionPacket(hexArr[index++], hexArr[index++], hexArr[index++], hexArr[index++], hexArr[index++], hexArr[index++]);\n                    break;\n                case EVA221X_Report_Type_1:\n                    message.Battery = parseBattery(hexArr[index++]);\n                    message.Current1 = translateInt16(hexArr[index++], hexArr[index++]) + \"mA\";\n                    message.Current2 = translateInt16(hexArr[index++], hexArr[index++]) + \"mA\";\n                    message.Current3 = translateInt16(hexArr[index++], hexArr[index++]) + \"mA\";\n                    message.Mulitplier1 = hexArr[index++];\n                    break;\n                case EVA221X_Report_Type_2:\n                    message.Battery = parseBattery(hexArr[index++]);\n                    message.Mulitplier2 = hexArr[index++];\n                    message.Mulitplier3 = hexArr[index++];\n                    break;\n                case EVA221X_Report_Type_3:\n                    message.Battery = parseBattery(hexArr[index++]);\n                    message.Current1 = translateInt16(hexArr[index++], hexArr[index++]) + \"mA\";\n                    message.Current2 = translateInt16(hexArr[index++], hexArr[index++]) + \"mA\";\n                    message.Current3 = translateInt16(hexArr[index++], hexArr[index++]) + \"mA\";\n                    var mulitplier = hexArr[index++];\n                    message.Mulitplier1 = EVA221X_Multiplier_List[mulitplier & 3];\n                    message.Mulitplier2 = EVA221X_Multiplier_List[(mulitplier & 12) >> 2];\n                    message.Mulitplier3 = EVA221X_Multiplier_List[(mulitplier & 48) >> 4];\n                    break;\n                default:\n                    message.ERROR = \"Unknow ReportType\";\n                    break;\n            }\n            break;\n        default:\n            message.ERROR = \"Unknow DeviceType\";\n            break;\n    }\n}\n\nfunction parseReportConfiguration(index) {\n    switch(deviceType) {\n        case DEVICE_TYPE_EVA221X.value:\n            message.DeviceType = DEVICE_TYPE_EVA221X.name;\n            switch(cmdId) {\n                case CMD_ID_CONFIG_REPORT_RSP.value:\n                    message.Cmd = CMD_ID_CONFIG_REPORT_RSP.name;\n                    message.Status = (hexArr[index++] == 0) ? \"Success\" : \"Fail\";\n                    break;\n                case CMD_ID_READ_CONFIG_REPORT_RSP.value:\n                    message.Cmd = CMD_ID_READ_CONFIG_REPORT_RSP.name;\n                    message.MinTime = translateInt16(hexArr[index++], hexArr[index++]) + \"s\";\n                    message.MaxTime = translateInt16(hexArr[index++], hexArr[index++]) + \"s\";\n                    message.CurrentChange = translateInt16(hexArr[index++], hexArr[index++]) + \"mA\";\n                    break;\n                default:\n                    message.ERROR = \"Unknow Cmd\";\n                    break;\n            }\n            break;\n        default:\n            message.ERROR = \"Unknow DeviceType\";\n            break;\n    }\n}\n\nfunction parseGlobalCalibrateCmd(index) {\n    switch(cmdId) {\n        case CMD_ID_SET_GLOBAL_CALIBRATE_RSP.value:\n            message.Cmd = CMD_ID_SET_GLOBAL_CALIBRATE_RSP.name;\n            message.SensorType = SensorTypeList[hexArr[index++]];\n            message.Channel = hexArr[index++] + 1;\n            message.Status = (hexArr[index++] == 0) ? \"Success\" : \"Fail\";\n            break;\n        case CMD_ID_GET_GLOBAL_CALIBRATE_RSP.value:\n            message.Cmd = CMD_ID_GET_GLOBAL_CALIBRATE_RSP.name;\n            message.SensorType = SensorTypeList[hexArr[index++]];\n            message.Channel = hexArr[index++] + 1;\n            message.Multiplier = translateInt16(hexArr[index++], hexArr[index++]);\n            message.Divisor = translateInt16(hexArr[index++], hexArr[index++]);\n            message.DeltValue = convertToSignedInt16(translateInt16(hexArr[index++], hexArr[index++]));\n            break;\n        case CMD_ID_CLEAR_GLOBAL_CALIBRATE_RSP.value:\n            message.Cmd = CMD_ID_CLEAR_GLOBAL_CALIBRATE_RSP.name;\n            message.Status = (hexArr[index++] == 0) ? \"Success\" : \"Fail\";\n            break;\n        default:\n            message.ERROR = \"Unknow Cmd\";\n            break;\n    }\n}\n\n////////////////////////////////////////////\n// Main\n////////////////////////////////////////////\n\ntry\n{\n    if(arrLength < MIN_FRAME_LENGTH || arrLength > MAX_FRAME_LENGTH || arrLength % 2 !== 0){\n        msg.payload = \"received frame length error\";\n        return msg;\n    }\n\n    //parse hex string to array\n    arrLength = arrLength / 2;\n\n    for(i = 0; i < arrLength; i++){\n        hexArr.push(parseInt(receivedString.substring(i*2, i*2+2), 16)); //parse hex\n    }\n\n    switch(fport) {\n        case DATA_REPORT_REPORT_DATA_CMD:\n            version = hexArr[0];\n            deviceType = hexArr[1];\n            reportType = hexArr[2];\n\n            arrayIndex = 3;\n\n            parseReportDataCmd(arrayIndex);\n            break;\n        case DATA_REPORT_REPORT_CONFIGURATION:\n            cmdId = hexArr[0];\n            deviceType = hexArr[1];\n\n            arrayIndex = 2;\n\n            parseReportConfiguration(arrayIndex);\n            break;\n        case DATA_REPORT_GLOBAL_CALIBRATE_CMD:\n            cmdId = hexArr[0];\n\n            arrayIndex = 1;\n\n            parseGlobalCalibrateCmd(arrayIndex);\n            break;\n        default:\n            msg.payload = \"Unknow fPort\";\n            return msg;\n    }\n}\ncatch(ex)\n{\n    console.log(\"Error: Parser failed. \" + ex);\n    msg.payload = \"Error: Parser failed. \" + ex;\n    return msg;\n}\n\n// MySQL로 삽입할 데이터 준비\nif(bIsRunNodeRed){\n    msg.topic = \"INSERT INTO eva-2210 (DeviceType, Battery, Current1, Current2, Current3, Multiplier1, Multiplier2, Multiplier3, SoftwareVersion, HardwareVersion, FirmwareVersion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\";\n    msg.payload = [\n        message.DeviceType || null,\n        message.Battery || null,\n        message.Current1 || null,\n        message.Current2 || null,\n        message.Current3 || null,\n        message.Mulitplier1 || null,\n        message.Mulitplier2 || null,\n        message.Mulitplier3 || null,\n        message.SoftwareVersion || null,\n        message.HardwareVersion || null,\n        message.FirmwareVersion || null\n    ];\n\n    return msg;\n} else {\n    node.warn(JSON.stringify(message, null, 4));\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 460,
+        "wires": [
+            [
+                "3c6433578307fc72",
+                "21a425eebe544122"
+            ]
+        ]
+    },
+    {
+        "id": "6d741d406877a203",
+        "type": "mqtt in",
+        "z": "745400aebc17700f",
+        "name": "",
+        "topic": "uplink/0153DE2D",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "3dfd5608934b7d62",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 220,
+        "y": 460,
+        "wires": [
+            [
+                "ec569aaef8abdd47"
+            ]
+        ]
+    },
+    {
+        "id": "7e39f516c6910c63",
+        "type": "mqtt in",
+        "z": "745400aebc17700f",
+        "name": "",
+        "topic": "Advantech/FF6C0756/data",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "3dfd5608934b7d62",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 250,
+        "y": 200,
+        "wires": [
+            [
+                "83959652f92597cb"
+            ]
+        ]
+    },
+    {
+        "id": "725e9fbcc2dd0645",
+        "type": "debug",
+        "z": "745400aebc17700f",
+        "name": "insert wise-2410",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1010,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "3c6433578307fc72",
+        "type": "mysql",
+        "z": "745400aebc17700f",
+        "mydb": "491e436f74fd9cb2",
+        "name": "",
+        "x": 770,
+        "y": 500,
+        "wires": [
+            [
+                "80333f4d1bb04a40"
+            ]
+        ]
+    },
+    {
+        "id": "7935958483bfe75e",
+        "type": "debug",
+        "z": "745400aebc17700f",
+        "name": "format_wise-2410",
+        "active": false,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 800,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "21a425eebe544122",
+        "type": "debug",
+        "z": "745400aebc17700f",
+        "name": "fomat_eva-2210",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 790,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "491e436f74fd9cb2",
+        "type": "MySQLdatabase",
+        "name": "Aius mysql",
+        "host": "54.221.37.133",
+        "port": "3306",
+        "db": "my2",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "3dfd5608934b7d62",
+        "type": "mqtt-broker",
+        "name": "mqtt",
+        "broker": "192.168.1.1",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]
