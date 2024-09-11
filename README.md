@@ -5,7 +5,7 @@
 Robot Arm 센싱을 통한 AI 예지보전 솔루션 개발 및 구현
 
 ## 🔗 대시보드 주소
-https://dashboard-bjpark-ews.education.wise-paas.com/frame/robot%20arm%20dashboard?orgId=3&language=en-US&theme=light&panelTitleShow=false&refresh=1m
+https://dashboard-bjpark-ews.education.wise-paas.com/frame/robot%20arm%20dashboard?orgId=3&language=en-US&theme=light&panelTitleShow=false
 
 ## 🧑‍🤝‍🧑팀원 소개
 광운대학교 정보융합학부
