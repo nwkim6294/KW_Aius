@@ -20,6 +20,11 @@ https://dashboard-bjpark-ews.education.wise-paas.com/frame/robot%20arm%20dashboa
 ### 🧰개발 환경
 - Python
 - MySQL
+- Flask
+- WISE-PaaS/Dashboard
+
+### 🌐오픈 데이터
+https://www.nist.gov/el/intelligent-systems-division-73500/degradation-measurement-robot-arm-position-accuracy
 
 ## 📍주요 기능
 #### 📊AI 솔루션
@@ -36,6 +41,6 @@ https://dashboard-bjpark-ews.education.wise-paas.com/frame/robot%20arm%20dashboa
 - WISE-6610으로 수집된 데이터를 통합하고 데이터베이스에 저장
   
 #### 🧑‍🔧대시보드
-- WISE-PaaS/Dashboard 플랫폼을 활용하여 Robot Arm의 현재/미래 이상 탐지 결과 시각화
+- Robot Arm의 현재/미래 이상 탐지 결과 시각화
 - 현재/미래 이상 상태를 <정상>,<주의>,<이상>로 구분하여 시각화
 - 실시간으로 수집되는 각 관절별 진동, 전류, 제어 전류, 속도, 위치, 온도 데이터 시각화
