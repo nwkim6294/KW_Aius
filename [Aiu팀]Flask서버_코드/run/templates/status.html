@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autoencoder Task Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        .status-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .status-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .status-detail {
+            margin-left: 20px;
+            color: #555;
+        }
+        .completed {
+            color: green;
+        }
+        .running {
+            color: orange;
+        }
+        .error {
+            color: red;
+        }
+        table.dataframe {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table.dataframe th, table.dataframe td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        table.dataframe th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Autoencoder Task Status</h1>
+
+    <div class="status-box">
+        <div class="status-title">Status: <span class="{{ status.status.lower() }}">{{ status.status }}</span></div>
+        <div class="status-title">Start Time: {{ status.start_time }}</div>
+        <div class="status-title">End Time: {{ status.end_time }}</div>
+        <div class="status-title">Current Step: {{ status.current_step }}</div>
+    </div>
+
+    <div class="status-box">
+        <div class="status-title">Details:</div>
+        <ul class="status-detail">
+            {% for detail in status.details %}
+                <li>{{ detail }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- 데이터프레임 테이블 추가 -->
+    <div class="status-box">
+        <div class="status-title">Fetched Data (Sampled 60 Rows):</div>
+        {{ table | safe }}  <!-- 변환된 HTML 테이블을 표시 -->
+    </div>
+
+</body>
+</html>
