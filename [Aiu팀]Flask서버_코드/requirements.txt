@@ -6,3 +6,5 @@ tensorflow
 numpy
 pandas
 scikit-learn
+shap
+dill
