@@ -47,7 +47,7 @@ https://www.nist.gov/el/intelligent-systems-division-73500/degradation-measureme
 - Robot Arm 상태가 <주의>, <이상>일 경우 SNS 알림 전송
 - LINE 알림 사용
 
-#### 🎛️데이터 수집
+#### 🎛️ 데이터 수집
 - Robot Arm 내부 센서 데이터 활용
 - Universal Robot Ur3e 사용
 - 3일간 일일 6시간 반복 동작 수행
