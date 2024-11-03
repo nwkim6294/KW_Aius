@@ -20,13 +20,13 @@ https://dashboard-bjpark-ews.education.wise-paas.com/frame/robot%20arm%20dashboa
 ## 🕐개발 기간
 24.03 ~ 24.10
 
-### 🧰개발 환경
+## 🧰개발 환경
 - Python
 - MySQL
 - Flask
 - WISE-PaaS/Dashboard
 
-### 🌐오픈 데이터
+## 🌐오픈 데이터
 **Degradation Measurement of Robot Arm Position Accuracy**
 https://www.nist.gov/el/intelligent-systems-division-73500/degradation-measurement-robot-arm-position-accuracy
 
