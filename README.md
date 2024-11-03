@@ -32,7 +32,7 @@ https://dashboard-bjpark-ews.education.wise-paas.com/frame/robot%20arm%20dashboa
 https://www.nist.gov/el/intelligent-systems-division-73500/degradation-measurement-robot-arm-position-accuracy
 
 ## 📍주요 기능
-#### 📊AI 솔루션
+#### ⚙ AI 솔루션
 - 데이터 전처리
 - 이상 탐지 모델 (CAE)
 - 센서 데이터 예측 모델
